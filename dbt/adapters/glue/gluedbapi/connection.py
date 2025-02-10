@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from dbt import exceptions as dbterrors
 import boto3
 from botocore.config import Config
-from botocore.exceptions import WaiterError
+from botocore.exceptions import WaiterError, ClientError
 from dbt.adapters.glue.gluedbapi.cursor import GlueCursor, GlueDictCursor
 from dbt.adapters.glue.credentials import GlueCredentials
 from dbt.adapters.glue.gluedbapi.commons import GlueStatement
@@ -355,7 +355,7 @@ class GlueConnection:
             session = response.get("Session", {})
             self._state = session.get("Status")
         except Exception as e:
-            if isinstance(e, botocore.exceptions.ClientError):
+            if isinstance(e, ClientError):
                 if e.response['Error']['Code'] == 'EntityNotFoundException':
                     logger.debug(f"Session {self.session_id} not found")
                     logger.debug(e)
